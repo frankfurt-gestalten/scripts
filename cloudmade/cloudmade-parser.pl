@@ -47,7 +47,7 @@ if($#ARGV < 1)
 #--PREPARE SCRIPT--
 #Values for OSM tags can be found at http://developers.cloudmade.com/wiki/geocoding-http-api/Object_Types
 my $object_type = shift(@ARGV);
-my $wantedresults = shift(@ARGV)];
+my $wantedresults = shift(@ARGV);
 
 #Prepare vars for the processing
 my $realResults = 0;
