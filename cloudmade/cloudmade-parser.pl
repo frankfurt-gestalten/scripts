@@ -29,13 +29,13 @@ my $longitudeEnd = '8.8259';
 my $debug = 0;
 #--- no need to change anything beyond this point ---
 
-#Check for Arguments
+#Check for arguments
 if($#ARGV == -1)
 {
   #we need at least one argument
 
   #give user some help about the usage:
-  print "Use: cloudmade-parser.pl <object_types>
+  print "Use: $0 <object_types>
 \t-The object_types can be obtained from http://developers.cloudmade.com/wiki/geocoding-http-api/Object_Types
 \t-You can give a list of object types and the script will try to get as many points as possible for it\n";
 
