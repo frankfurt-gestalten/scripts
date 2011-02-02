@@ -2,9 +2,9 @@
 #
 # This program uses the API from cloudmade to get points in a specified area.
 #
-# Use: cloudmade-parser.pl <object_type> <number of objects>
-#	-The object_type can be obtained from http://developers.cloudmade.com/wiki/geocoding-http-api/Object_Types
-#	-Remeber to insert your API key before running this
+# Use: cloudmade-parser.pl <object_types> 
+#	-The object_types can be obtained from http://developers.cloudmade.com/wiki/geocoding-http-api/Object_Types
+#	-You can give a list of object types and the script will try to get as many points as possible for it
 #
 # Autor: Niko Wenselowski (der@nik0.de) for Frankfurt Gestalten (http://www.frankfurt-gestalten.de/)
 
@@ -27,15 +27,12 @@ my $latitudeEnd = '50.067';
 my $longitudeEnd = '8.8259';
 
 my $debug = 0;
-
-
 #--- no need to change anything beyond this point ---
 
-
 #Check for Arguments
-if($#ARGV < 1)
+if($#ARGV == -1)
 {
-  #less than 2 arguments, here is something missing!
+  #we need at least one argument
 
   #give user some help about the usage:
   print 'halp here!';
@@ -46,57 +43,84 @@ if($#ARGV < 1)
 
 #--PREPARE SCRIPT--
 #Values for OSM tags can be found at http://developers.cloudmade.com/wiki/geocoding-http-api/Object_Types
-my $object_type = shift(@ARGV);
-my $wantedresults = shift(@ARGV);
 
 #Prepare vars for the processing
 my $realResults = 0;
-my $loopRuns = 0;
-my $emptyRun = 0;
+my $resultsPerQuery = 100; #process 100 objects with each run. 100 worked pretty well for me.
 
 #Prepare encoding-object for faster en/decode
 my $enc = find_encoding('utf8');
+
+
+#write the header for the csv
+print "Name;Latitude;Longitude\n";
 #--END PREPARE SCRIPT--
 
-while(($emptyRun < 2) && ($realResults < $wantedresults))
+while(@ARGV)
 {
-  my $skipResults = ($loopRuns * $wantedresults);
-  my $actualResults = $realResults;
+  my $object_type = shift(@ARGV);
 
-  getPoints("http://geocoding.cloudmade.com/$cmAPIkey/geocoding/v2/find.js?bbox=$latitudeStart,$longitudeStart,$latitudeEnd,$longitudeEnd&object_type=$object_type&skip=$skipResults&results=$wantedresults");
+  #(re)setting the vars for every object
+  my $emptyRuns = 0;
+  my $numberOfLoopRuns = 0;
+  my $doLoop = 1;
+  
+  print "\nLooking for: $object_type\n" if $debug;
 
-  if($actualResults == $realResults)
+  while($doLoop)
   {
-    #no results were found
-    $emptyRun++;
-    print "no results during loop - $emptyRun\n" if $debug;
-  } else {
-    #reset variable if results were found
-    $emptyRun = 0;
+    my $skipResults = $numberOfLoopRuns * $resultsPerQuery;
+    my $tmpResults = 0;
+    
+    if( ($skipResults + $resultsPerQuery) <= 1000 )
+    {
+      #Idee: Liste zurückgeben. Über die iterieren.
+      #Dann kann man auch die Anzahl der Items wieder beliebig genau machen.
+      $tmpResults = getPoints("http://geocoding.cloudmade.com/$cmAPIkey/geocoding/v2/find.js?bbox=$latitudeStart,$longitudeStart,$latitudeEnd,$longitudeEnd&object_type=$object_type&skip=$skipResults&results=$resultsPerQuery");
+    } else {
+      #Cloudmade won't let us skip that many objects, so we need a workaround...
+      #This is a bug that has been reported. See this thread for more information: http://support.cloudmade.com/forums/general/posts/1732/show?page=1
+      $doLoop = 0;
+    }
+
+    $realResults += $tmpResults;
+
+    if($tmpResults == 0)
+    {
+      $emptyRuns++;
+    } else {
+      #don't forget to reset 
+      $emptyRuns = 0;
+    }
+    
+    if(($emptyRuns > 2))
+    {
+      #Went through the loop too
+      print "Quitting the search for $object_type\n" if $debug;
+      $doLoop = 0;
+    }
+
+    $numberOfLoopRuns++;
   }
-
-  $loopRuns++;
 }
 
-if($emptyRun == 2)
-{
-  #Search was aborted because of too much empty runs and we inform our user about it.
-  print "Only found $realResults instead of your requested $wantedresults - sorry.\n";
-}
+print "\nFound $realResults points\n" if $debug;
 
 #finished
 exit 0;
+
 
 
 sub getPoints
 {
   my ($json_url) = @_;
   my $browser = LWP::UserAgent->new();
+  my $realResults = 0;
 
   eval
   {
     # download the json page:
-    print "Getting json $json_url\n" if $debug;
+    print "\nGetting json $json_url\n" if $debug;
     #$browser->get( $json_url );
     my $content = $browser->get($json_url)->content();
     my $json = new JSON;
@@ -107,22 +131,18 @@ sub getPoints
     # iterate over each episode in the JSON structure:
     foreach my $feature(@{$json_text->{features}})
     {
-      #Do we still need more results?
-      if($realResults < $wantedresults)
+      #We only want single points
+      if($feature->{centroid}->{type} eq 'POINT')
       {
-	#We only want single points
-	if($feature->{centroid}->{type} eq 'POINT')
-	{
-	  print $enc->encode($realResults . ";") if($debug);
+	print $enc->encode($realResults . ";") if($debug);
 
-	  #print what we got
-	  print $enc->encode($feature->{properties}->{name}. ";" . $feature->{centroid}->{coordinates}[0] . ";" . $feature->{centroid}->{coordinates}[1] . "\n");
+	#print what we got
+	print $enc->encode($feature->{properties}->{name}. ";" . $feature->{centroid}->{coordinates}[0] . ";" . $feature->{centroid}->{coordinates}[1] . "\n");
 
-	  #yay, we got a result :)
-	  $realResults++;
-	} else {
-	  print $enc->encode('kein Punkt!') if($debug);
-	}
+	#yay, we got a result :)
+	$realResults++;
+      } else {
+	print $enc->encode('kein Punkt!') if($debug);
       }
     }
   };
@@ -132,4 +152,6 @@ sub getPoints
     #Tell the user about problems
     print $enc->encode("[[JSON ERROR]] JSON parser crashed! $@\n");
   }
+
+  return $realResults;
 }
