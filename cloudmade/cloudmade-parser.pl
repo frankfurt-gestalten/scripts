@@ -35,7 +35,9 @@ if($#ARGV == -1)
   #we need at least one argument
 
   #give user some help about the usage:
-  print 'halp here!';
+  print "Use: cloudmade-parser.pl <object_types>
+\t-The object_types can be obtained from http://developers.cloudmade.com/wiki/geocoding-http-api/Object_Types
+\t-You can give a list of object types and the script will try to get as many points as possible for it\n";
 
   #exit the program
   exit -1;
