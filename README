@@ -13,9 +13,11 @@ A script to retrieve the next dates and locations for the hazardous substances c
 ## cloudmade/cloudmade-parser.pl
 This script needs one or more object_types as arguments.
 The possible object_types can be obtained from http://developers.cloudmade.com/wiki/geocoding-http-api/Object_Types
+The output is formatted like a csv-file would be. Feel free to pipe the output into a file.
 
 ## events/fes-schadstoffmobil-termine.pl
 This scripts needs no arguments.
+The output is formatted like a .ics-file.
 
 # QUESTIONS
 You have any questions left? Feel free to ask.
