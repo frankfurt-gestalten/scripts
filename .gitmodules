@@ -1,0 +1,3 @@
+[submodule "traffic_information/GKConverter"]
+	path = traffic_information/GKConverter
+	url = git@github.com:okin/GKConverter.git
