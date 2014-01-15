@@ -95,6 +95,8 @@ def get_options(args=None):
     parser.add_option("-f", "--filename", help="Name of the file to fetch.")
     parser.add_option("-o", "--outputfile", help="Name of the file that will contain the converted output.")
     parser.add_option("-t", "--tempfile", help="Name of the temporary file used when fetching data. Will be removed after script execution.")
+    parser.add_option("--debug", action="store_true", default=False,
+                      help="Enables debug output.")
 
     (options, args) = parser.parse_args(args)
 
@@ -103,7 +105,8 @@ def get_options(args=None):
         'user': options.user,
         'password': options.password,
         'filename': options.filename,
-        'outputfile': options.outputfile
+        'outputfile': options.outputfile,
+        'debug': options.debug,
     }
 
     if options.tempfile:
@@ -147,6 +150,10 @@ def run_standalone(config):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     config = get_options()
+
+    if config['debug']:
+        logger.setLevel(logging.DEBUG)
 
     run_standalone(config)
