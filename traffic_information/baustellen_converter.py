@@ -116,11 +116,6 @@ def get_options(args=None):
 
 
 def run_standalone(config):
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(ch)
-
     logger.info('Started')
     if not 'tmp_file' in config:
         logger.debug('Getting tmp filename...')
