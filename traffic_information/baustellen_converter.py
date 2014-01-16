@@ -17,10 +17,10 @@ def convert_existing_coordinates(xml_content):
 
     #Preparing regexp
     verortungselement_start = re.compile("\<Verortungselement Index=\"(\d+)\".*\>", re.I)
+    verortungselement_ende = re.compile("\<\/Verortungselement\>", re.I)
     verortungselement = re.compile("\<Verortungselement.*\>", re.I)
     koord_element = re.compile("\<Koordinaten Index=\"(\d+)\".*\>", re.I)
     koord_element_start = re.compile("\<Koordinaten.*\>", re.I)
-    verortungselement_ende = re.compile("\<\/Verortungselement\>", re.I)
     koordinaten_ende = re.compile("\<\/Koordinaten\>", re.I)
     x_koord = re.compile("(.*<X-Koordinate>)([0-9]+,[0-9]+)(<\/X-Koordinate>.*)", re.I)
     y_koord = re.compile("(.*<Y-Koordinate>)([0-9]+,[0-9]+)(<\/Y-Koordinate>.*)", re.I)
