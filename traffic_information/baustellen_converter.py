@@ -6,6 +6,7 @@ import re
 import sys
 import tempfile
 from optparse import OptionParser
+from collections import namedtuple
 
 from GKConverter import gkconverter
 
@@ -13,12 +14,20 @@ logger = logging.getLogger('BAUSTELLEN_LOGGER')
 
 
 def convert_existing_coordinates(xml_content):
+    def remove_newlines(line):
+        line = line.replace('\n', '')
+        return line.replace('\r', '')
+
+    def not_in_an_verortungselement():
+        return not elem and not elemKO
+
     stuff_to_return = []
+    CoordinatesLine = namedtuple('CoordinatesLine', ['pre', 'value', 'post'])
 
     #Preparing regexp
     verortungselement_start = re.compile("\<Verortungselement Index=\"(\d+)\".*\>", re.I)
     verortungselement_ende = re.compile("\<\/Verortungselement\>", re.I)
-    verortungselement = re.compile("\<Verortungselement.*\>", re.I)
+    verortungs_start = re.compile("\<Verortung.*\>", re.I)
     koord_element = re.compile("\<Koordinaten Index=\"(\d+)\".*\>", re.I)
     koord_element_start = re.compile("\<Koordinaten.*\>", re.I)
     koordinaten_ende = re.compile("\<\/Koordinaten\>", re.I)
@@ -26,17 +35,16 @@ def convert_existing_coordinates(xml_content):
     y_koord = re.compile("(.*<Y-Koordinate>)([0-9]+,[0-9]+)(<\/Y-Koordinate>.*)", re.I)
 
     #Variables used during the run
-    pre_X = x = post_X = None
-    pre_Y = y = post_Y = None
+    x = None
+    y = None
     elem = 0
     elemKO = 0
-    x_koo = None
-    y_koo = None
+    found_x_coordinate = None
+    found_y_coordinate = None
     koords_used = False
 
     for line in xml_content:
-        line = line.replace('\n', '')
-        line = line.replace('\r', '')
+        line = remove_newlines(line)
 
         if koords_used:
             stuff_to_return.append(line)
@@ -47,50 +55,47 @@ def convert_existing_coordinates(xml_content):
         koo = koord_element.search(line)
         if(verort):
             elem = int(verort.group(1))
-        elif(verortungselement.search(line)):
+        elif(verortungs_start.search(line)):
             elem = 0
         elif(koo):
             elemKO = int(koo.group(1))
         elif(koord_element_start.search(line)):
             elemKO = 0
 
-        if not x_koo:
-            x_koo = x_koord.search(line)
-        if not y_koo:
-            y_koo = y_koord.search(line)
+        if not found_x_coordinate:
+            found_x_coordinate = x_koord.search(line)
+        if not found_y_coordinate:
+            found_y_coordinate = y_koord.search(line)
 
-        if(elemKO == 0 and x_koo and not y_koo):
-            pre_X = x_koo.group(1)
-            x = x_koo.group(2)
-            post_X = x_koo.group(3)
-        elif(elemKO == 0 and y_koo):
-            pre_Y = y_koo.group(1)
-            y = y_koo.group(2)
-            post_Y = y_koo.group(3)
-        elif(not elem and not elemKO):
+        if(elemKO == 0 and found_x_coordinate and not found_y_coordinate):
+            x = CoordinatesLine(found_x_coordinate.group(1), found_x_coordinate.group(2), found_x_coordinate.group(3))
+        elif(elemKO == 0 and found_y_coordinate):
+            y = CoordinatesLine(found_y_coordinate.group(1), found_y_coordinate.group(2), found_y_coordinate.group(3))
+        elif not_in_an_verortungselement():
             stuff_to_return.append(line)
 
         if(x and y and elemKO == 0 and elem == 0 and not koords_used):
-            float_x = float(x.replace(',', '.'))
-            float_y = float(y.replace(',', '.'))
-            (x, y) = gkconverter.convert_GK_to_lat_long(float_x, float_y)
+            float_x = float(x.value.replace(',', '.'))
+            float_y = float(y.value.replace(',', '.'))
+            (converted_x, converted_y) = gkconverter.convert_GK_to_lat_long(float_x, float_y)
 
             logger.debug(
                 '\n\nPosting coordinates: {0}'.format(
-                    ['{0} -> {1}'.format(key, locals()[key]) for key in
+                    [
+                        '{0} -> {1}'.format(key, locals()[key]) for key in
                         (
-                            'verort', 'koords_used', 'elemKO', 'x_koo', 'elem',
-                            'y_koo', 'y', 'x', 'line'
+                            'verort', 'koords_used', 'elem', 'elemKO', 'found_x_coordinate',
+                            'found_y_coordinate', 'y', 'x', 'line'
                         )
                     ]
                 )
             )
 
-            stuff_to_return.append("%s%s%s" % (pre_X, x, post_X))
-            stuff_to_return.append("%s%s%s" % (pre_Y, y, post_Y))
+            stuff_to_return.append("%s%s%s" % (x.pre, converted_x, x.post))
+            stuff_to_return.append("%s%s%s" % (y.pre, converted_y, y.post))
 
-            pre_X = x = post_X = x_koo = None
-            pre_Y = y = post_Y = y_koo = None
+            x = found_x_coordinate = None
+            y = found_y_coordinate = None
             koords_used = True
 
         #Is any element ending, so we can start to print again?
@@ -99,8 +104,8 @@ def convert_existing_coordinates(xml_content):
             koords_used = False
         elif(koordinaten_ende.search(line)):
             elemKO = None
-            x_koo = None
-            y_koo = None
+            x = found_x_coordinate = None
+            y = found_y_coordinate = None
 
     return stuff_to_return
 
