@@ -164,9 +164,14 @@ def run_standalone(config):
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    config = get_options()
+    try:
+        from config import configs
+    except ImportError:
+        config = get_options()
+        configs = [config]
 
-    if config['debug']:
-        logger.setLevel(logging.DEBUG)
+    for config in configs:
+        if config['debug']:
+            logger.setLevel(logging.DEBUG)
 
-    run_standalone(config)
+        run_standalone(config)

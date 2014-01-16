@@ -1,1 +1,3 @@
 *.py[oc]
+traffic_information/config.py
+traffic_information/*.xml
