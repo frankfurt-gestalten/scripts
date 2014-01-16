@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import sys
+import tempfile
 from optparse import OptionParser
 
 from GKConverter import gkconverter
@@ -119,7 +120,7 @@ def run_standalone(config):
     logger.info('Started')
     if not 'tmp_file' in config:
         logger.debug('Getting tmp filename...')
-        config['tmp_file'] = os.tempnam('/tmp')
+        config['tmp_file'] = tempfile.mkstemp()[1]
 
     logger.debug('Will save temporary data into %(tmp_file)s' % config)
 
