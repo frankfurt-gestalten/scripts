@@ -32,10 +32,17 @@ def convert_existing_coordinates(xml_content):
     elemKO = 0
     x_koo = None
     y_koo = None
+    koords_used = False
 
     for line in xml_content:
         line = line.replace('\n', '')
         line = line.replace('\r', '')
+
+        if koords_used:
+            stuff_to_return.append(line)
+            koords_used = False
+            continue
+
         verort = verortungselement_start.search(line)
         koo = koord_element.search(line)
         if(verort):
@@ -63,27 +70,37 @@ def convert_existing_coordinates(xml_content):
         elif(not elem and not elemKO):
             stuff_to_return.append(line)
 
-        if(x and y and elemKO == 0 and elem == 0):
+        if(x and y and elemKO == 0 and elem == 0 and not koords_used):
             float_x = float(x.replace(',', '.'))
             float_y = float(y.replace(',', '.'))
             (x, y) = gkconverter.convert_GK_to_lat_long(float_x, float_y)
 
+            logger.debug(
+                '\n\nPosting coordinates: {0}'.format(
+                    ['{0} -> {1}'.format(key, locals()[key]) for key in
+                        (
+                            'verort', 'koords_used', 'elemKO', 'x_koo', 'elem',
+                            'y_koo', 'y', 'x', 'line'
+                        )
+                    ]
+                )
+            )
+
             stuff_to_return.append("%s%s%s" % (pre_X, x, post_X))
             stuff_to_return.append("%s%s%s" % (pre_Y, y, post_Y))
 
-            pre_X = x = post_X = None
-            pre_Y = y = post_Y = None
-
-            x_koo = None
-            y_koo = None
+            pre_X = x = post_X = x_koo = None
+            pre_Y = y = post_Y = y_koo = None
+            koords_used = True
 
         #Is any element ending, so we can start to print again?
         if(verortungselement_ende.search(line)):
             elem = None
-            x_koo = None
-            y_koo = None
+            koords_used = False
         elif(koordinaten_ende.search(line)):
             elemKO = None
+            x_koo = None
+            y_koo = None
 
     return stuff_to_return
 
