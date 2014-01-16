@@ -372,6 +372,12 @@ class XMLProcessingTest(unittest.TestCase):
         '                    <Y-Koordinate>5552883,99</Y-Koordinate>',
         '                </Koordinaten>',
         '            </Verortungselement>',
+        '            <Verortungselement Index="27" Typ="Kante">',
+        '                <Koordinaten Index="0">',
+        '                    <X-Koordinate>3471964,92</X-Koordinate>',
+        '                    <Y-Koordinate>5553000,93</Y-Koordinate>',
+        '                </Koordinaten>',
+        '            </Verortungselement>',
         '        </Verortung>',
         '    </Ereignis>',
         '    <Ereignis>',
@@ -397,7 +403,7 @@ class XMLProcessingTest(unittest.TestCase):
         '            </Verortungselement>',
         '        </Verortung>',
         '    </Ereignis>',
-        '</Diensteserver>',]
+        '</Diensteserver>']
 
         expected_result = [
             '<?xml version="1.0" encoding="ISO-8859-1"?>',
