@@ -20,7 +20,7 @@ def getTrafficInformationFromEtree(etree):
         description = []
         # XML. All. The. Way. Down. Until. It. Hurts.
         # Whoever created this spec should quit his job now. FFS.
-        for x in etree.iter('{http://datex2.eu/schema/2/2_0}generalPublicComment'):
+        for x in situation.iter('{http://datex2.eu/schema/2/2_0}generalPublicComment'):
             for comment in x.iter('{http://datex2.eu/schema/2/2_0}comment'):
                 for values in comment.iter('{http://datex2.eu/schema/2/2_0}values'):
                     for value in comment.iter('{http://datex2.eu/schema/2/2_0}value'):
