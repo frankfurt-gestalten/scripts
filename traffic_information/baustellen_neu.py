@@ -4,7 +4,7 @@
 import lxml.etree
 
 
-def getFirstElement(xmlTag):
+def getFirstElement(etree, xmlTag):
     return [x.text for x in etree.iter(xmlTag)][0]
 
 
@@ -12,10 +12,10 @@ def getTrafficInformationFromEtree(etree):
     for situation in etree.iter('{http://datex2.eu/schema/2/2_0}situation'):
         baustelle = {
             "id": situation.get('id'),
-            "start": getFirstElement('{http://datex2.eu/schema/2/2_0}overallStartTime'),
-            "end": getFirstElement('{http://datex2.eu/schema/2/2_0}overallEndTime'),
-            "latitude": getFirstElement('{http://datex2.eu/schema/2/2_0}latitude'),
-            "longitude": getFirstElement('{http://datex2.eu/schema/2/2_0}longitude'),
+            "start": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}overallStartTime'),
+            "end": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}overallEndTime'),
+            "latitude": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}latitude'),
+            "longitude": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}longitude'),
         }
 
         description = []
