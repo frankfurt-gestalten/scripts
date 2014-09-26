@@ -11,6 +11,7 @@ def getFirstElement(xmlTag):
 def getTrafficInformationFromEtree(etree):
     for situation in etree.iter('{http://datex2.eu/schema/2/2_0}situation'):
         baustelle = {
+            "id": situation.get('id'),
             "start": getFirstElement('{http://datex2.eu/schema/2/2_0}overallStartTime'),
             "end": getFirstElement('{http://datex2.eu/schema/2/2_0}overallEndTime'),
             "latitude": getFirstElement('{http://datex2.eu/schema/2/2_0}latitude'),
