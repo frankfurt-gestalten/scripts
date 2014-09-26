@@ -16,7 +16,7 @@ TEMPLATE = """<?xml version="1.0" encoding="ISO-8859-1"?>
 
 # TODO: is source ID required? Can be obtained otherwise?
 EVENT_TEMPLATE = """<Ereignis>
-    <Source-Id>123456789012</Source-Id>
+    <Source-Id>{id}</Source-Id>
     <Text>{description[:50]}</Text>
     <MeldungsTextKurz/>
     <MeldungsTextLang>{description}</MeldungsTextLang>
