@@ -1,0 +1,65 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import datetime
+import lxml
+from baustellen_neu import getTrafficInformationFromEtree
+
+TEMPLATE = """<?xml version="1.0" encoding="ISO-8859-1"?>
+<Diensteserver>
+    <Zeitstempel>
+        <Datum>{date}</Datum>
+        <Uhrzeit>{time}</Uhrzeit>
+    </Zeitstempel>
+    {events}
+</Diensteserver>"""
+
+# TODO: is source ID required? Can be obtained otherwise?
+EVENT_TEMPLATE = """<Ereignis>
+    <Source-Id>123456789012</Source-Id>
+    <Text>{description[:50]}</Text>
+    <MeldungsTextKurz/>
+    <MeldungsTextLang>{description}</MeldungsTextLang>
+    <ZeitraumVon>{start}</ZeitraumVon>
+    <ZeitraumBis>{end}</ZeitraumBis>
+    <Verortung>
+        <Verortungselement Index="0" Typ="Kante">
+            <Koordinaten Index="0">
+                <X-Koordinate>{latitude}</X-Koordinate>
+                <Y-Koordinate>{longitude}</Y-Koordinate>
+            </Koordinaten>
+        </Verortungselement>
+    </Verortung>
+</Ereignis>"""
+
+
+def main():
+    with open('ausgabedatei.xml') as eingabe:
+        etree = lxml.etree.parse(eingabe)
+
+    events = []
+    for traffic_info in getTrafficInformationFromEtree(etree):
+        if not 'description' in traffic_info:
+            continue
+
+        events.append(EVENT_TEMPLATE.format(**traffic_info))
+
+        # baustelle = {
+        #     "start": getFirstElement('{http://datex2.eu/schema/2/2_0}overallStartTime'),
+        #     "end": getFirstElement('{http://datex2.eu/schema/2/2_0}overallEndTime'),
+        #     "latitude": getFirstElement('{http://datex2.eu/schema/2/2_0}latitude'),
+        #     "longitude": getFirstElement('{http://datex2.eu/schema/2/2_0}longitude'),
+        #     'description': 0
+        # }
+
+    now = datetime.datetime.now()
+
+    return TEMPLATE.format(
+        date=now.strftime('%d.%m.%Y'),
+        time=now.strftime('%H:%M:%S'),
+        events='\n'.join(events)
+    )
+
+
+if __name__ == '__main__':
+    main()
