@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
-import lxml
+import lxml.etree
 from baustellen_neu import getTrafficInformationFromEtree
 
 TEMPLATE = u"""<?xml version="1.0" encoding="ISO-8859-1"?>
