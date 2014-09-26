@@ -5,7 +5,7 @@ import datetime
 import lxml
 from baustellen_neu import getTrafficInformationFromEtree
 
-TEMPLATE = """<?xml version="1.0" encoding="ISO-8859-1"?>
+TEMPLATE = u"""<?xml version="1.0" encoding="ISO-8859-1"?>
 <Diensteserver>
     <Zeitstempel>
         <Datum>{date}</Datum>
@@ -14,8 +14,7 @@ TEMPLATE = """<?xml version="1.0" encoding="ISO-8859-1"?>
     {events}
 </Diensteserver>"""
 
-# TODO: is source ID required? Can be obtained otherwise?
-EVENT_TEMPLATE = """<Ereignis>
+EVENT_TEMPLATE = u"""<Ereignis>
     <Source-Id>{id}</Source-Id>
     <Text>{description[:50]}</Text>
     <MeldungsTextKurz/>
