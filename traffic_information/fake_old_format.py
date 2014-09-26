@@ -43,14 +43,6 @@ def main():
 
         events.append(EVENT_TEMPLATE.format(**traffic_info))
 
-        # baustelle = {
-        #     "start": getFirstElement('{http://datex2.eu/schema/2/2_0}overallStartTime'),
-        #     "end": getFirstElement('{http://datex2.eu/schema/2/2_0}overallEndTime'),
-        #     "latitude": getFirstElement('{http://datex2.eu/schema/2/2_0}latitude'),
-        #     "longitude": getFirstElement('{http://datex2.eu/schema/2/2_0}longitude'),
-        #     'description': 0
-        # }
-
     now = datetime.datetime.now()
 
     return TEMPLATE.format(
