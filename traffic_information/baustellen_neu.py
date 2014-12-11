@@ -12,10 +12,10 @@ def getTrafficInformationFromEtree(etree):
     for situation in etree.iter('{http://datex2.eu/schema/2/2_0}situation'):
         baustelle = {
             "id": situation.get('id'),
-            "start": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}overallStartTime'),
-            "end": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}overallEndTime'),
-            "latitude": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}latitude'),
-            "longitude": getFirstElement(etree, '{http://datex2.eu/schema/2/2_0}longitude'),
+            "start": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}overallStartTime'),
+            "end": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}overallEndTime'),
+            "latitude": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}latitude'),
+            "longitude": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}longitude'),
         }
 
         description = []
