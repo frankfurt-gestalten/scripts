@@ -40,3 +40,5 @@ if __name__ == '__main__':
 
     for traffic_info in getTrafficInformationFromEtree(etree):
         print(traffic_info)
+    for traffic_info in getTrafficInformationFromEtree(etree):
+        print("Info for {id} ({start} - {end}): {latitude} / {longitude}".format(**traffic_info))
