@@ -26,6 +26,7 @@ def getTrafficInformationFromEtree(etree):
                 for values in comment.iter('{http://datex2.eu/schema/2/2_0}values'):
                     for value in comment.iter('{http://datex2.eu/schema/2/2_0}value'):
                         description.append(value.text)
+            break
 
         description = ''.join(description).replace('|', ' ')
         if description:
