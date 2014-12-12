@@ -30,7 +30,7 @@ def getTrafficInformationFromEtree(etree):
 
         description = ''.join(description).replace('|', ' ')
         if description:
-            baustelle['description'] = description
+            baustelle['description'] = description.strip()
 
         yield baustelle
 
