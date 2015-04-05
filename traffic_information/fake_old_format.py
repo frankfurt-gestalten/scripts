@@ -36,12 +36,8 @@ def main():
     with open('ausgabedatei.xml') as eingabe:
         etree = lxml.etree.parse(eingabe)
 
-    events = []
-    for traffic_info in getTrafficInformationFromEtree(etree):
-        if not 'description' in traffic_info:
-            continue
-
-        events.append(EVENT_TEMPLATE.format(**traffic_info))
+    events = (EVENT_TEMPLATE.format(**traffic_info) for traffic_info in
+        getTrafficInformationFromEtree(etree) if 'description' in traffic_info)
 
     now = datetime.datetime.now()
 
