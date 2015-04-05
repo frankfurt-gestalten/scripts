@@ -10,13 +10,16 @@ def getFirstElement(etree, xmlTag):
 
 def getTrafficInformationFromEtree(etree):
     for situation in etree.iter('{http://datex2.eu/schema/2/2_0}situation'):
-        baustelle = {
-            "id": situation.get('id'),
-            "start": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}overallStartTime'),
-            "end": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}overallEndTime'),
-            "latitude": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}latitude'),
-            "longitude": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}longitude'),
-        }
+        try:
+            baustelle = {
+                "id": situation.get('id'),
+                "start": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}overallStartTime'),
+                "end": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}overallEndTime'),
+                "latitude": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}latitude'),
+                "longitude": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}longitude'),
+            }
+        except IndexError as error:
+            print(" --> Failed to get first element! id: {0}. Error: {1}".format(situation.get('id'), error))
 
         description = []
         # XML. All. The. Way. Down. Until. It. Hurts.
