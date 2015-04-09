@@ -1,6 +1,10 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
+import sys
+
 import lxml.etree
 
 
@@ -19,7 +23,7 @@ def getTrafficInformationFromEtree(etree):
                 "longitude": getFirstElement(situation, '{http://datex2.eu/schema/2/2_0}longitude'),
             }
         except IndexError as error:
-            print(" --> Failed to get first element! id: {0}. Error: {1}".format(situation.get('id'), error))
+            print(" --> Failed to get first element! id: {0}. Error: {1}".format(situation.get('id'), error), file=sys.stderr)
 
         description = []
         # XML. All. The. Way. Down. Until. It. Hurts.
